@@ -1,8 +1,6 @@
 const YahooFinance = require('yahoo-finance2').default;
 const yahooFinance = new YahooFinance();
 
-const MARKET_LEADERS = ['SOFI', 'INFQ', 'SMR'];
-
 async function getScreenerTickers() {
   const result = await yahooFinance.screener({ scrIds: 'day_gainers', count: 50 });
   const sorted = result.quotes.sort((a, b) => b.regularMarketChangePercent - a.regularMarketChangePercent);
@@ -76,12 +74,11 @@ async function scanAll() {
 }
 
 async function getEarningsCalendar(extraTickers = []) {
-  // Merge market leaders + any extras the user added, remove duplicates, cap at 40
   const cleanedExtras = (extraTickers || [])
     .map(t => String(t).trim().toUpperCase())
     .filter(Boolean);
 
-  const combined = [...new Set([...cleanedExtras, ...MARKET_LEADERS])].slice(0, 40);
+  const combined = [...new Set(cleanedExtras)].slice(0, 40);
   const results = [];
 
   for (const ticker of combined) {
@@ -110,7 +107,7 @@ async function getEarningsCalendar(extraTickers = []) {
   return results;
 }
 
-module.exports = { getQuote, getProfile, scanAll, enrichWithProfile, getEarningsCalendar };
+module.exports = { getQuote, getProfile, scanAll, enrichWithProfile, getEarningsCalendar, searchTickers };
 
 async function searchTickers(query) {
   if (!query || query.length < 1) return [];
